@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from utils import *
+import os
 
 app = Flask(__name__)
 
@@ -15,4 +16,5 @@ def calculate_cost(data):
     return model.predict(data)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Render définit le port via la variable d'environnement PORT
+    app.run(host="0.0.0.0", port=port)        # Assure-toi d'utiliser host="0.0.0.0" pour accepter les connexions externes
