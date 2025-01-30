@@ -2,8 +2,6 @@ import pandas as pd
 import math
 import random
 from flask import Flask, request, jsonify
-from utils import *
-import os
 
 # Charger les données
 passenger_df = pd.read_csv("passenger_data.csv")
@@ -91,18 +89,5 @@ def top_customers(driver_id, n):
     except IndexError:
         return jsonify({"message": "Chauffeur introuvable."}), 404
 
-
-@app.route('/cost', methods=['POST'])
-def cost():
-    data = request.get_json()
-    data = get_data(data.get('start'), data.get('end'),data.get('hour'))
-    cost = calculate_cost(data)
-    # return jsonify({'cost':cost})
-    return f"{cost}"
-    
-def calculate_cost(data):
-    return model.predict(data)
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5001))  # Render définit le port via la variable d'environnement PORT
-    app.run(host="0.0.0.0", port=port)        # Assure-toi d'utiliser host="0.0.0.0" pour accepter les connexions externes
+if __name__ == "__main__":
+    app.run(debug=True)
