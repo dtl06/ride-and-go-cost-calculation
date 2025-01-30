@@ -68,8 +68,13 @@ app = Flask(__name__)
 @app.route("/", methods=["GET"])
 def welcome():
     """ACCUEIL"""
-    
     return jsonify({"message": "Bienvenue sur l'api de recommandation des clients et chauffeurs pour l'application Ride and go."}), 200
+
+@app.route("/register", methods=["POST"])
+def register():
+    """Endpoint pour enregistrer un chauffeur."""
+    data = request.json()
+    if data.get('role')    
 
 @app.route("/assign_driver", methods=["POST"])
 def assign_driver():

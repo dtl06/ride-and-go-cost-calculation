@@ -4,6 +4,25 @@ import joblib
 from geopy.distance import geodesic
 import requests
 from datetime import datetime
+import pickle
+
+
+# Chemin vers les fichiers binaires
+DRIVER_DATA_FILE = 'driver_data.pkl'
+PASSENGER_DATA_FILE = 'passenger_data.pkl'
+
+# Fonction pour charger les données depuis un fichier binaire
+def load_data(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return {}  # Retourner un dictionnaire vide si le fichier n'existe pas
+
+# Fonction pour sauvegarder les données dans un fichier binaire
+def save_data(file_path, data):
+    with open(file_path, 'wb') as f:
+        pickle.dump(data, f)
 
 model = joblib.load('random_forests.pkl')
 
