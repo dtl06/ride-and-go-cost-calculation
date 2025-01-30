@@ -104,5 +104,4 @@ def calculate_cost(data):
     return model.predict(data)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5001))  # Render définit le port via la variable d'environnement PORT
-    app.run(host="0.0.0.0", port=port)        # Assure-toi d'utiliser host="0.0.0.0" pour accepter les connexions externes
+    app.run(debug=True)

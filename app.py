@@ -2,6 +2,8 @@ import pandas as pd
 import math
 import random
 from flask import Flask, request, jsonify
+from utils import *
+import os
 
 # Charger les données
 passenger_df = pd.read_csv("passenger_data.csv")
@@ -12,6 +14,8 @@ w1, w2, w3 = 0.3, 0.2, 0.5
 
 # Rayon de la Terre en kilomètres
 EARTH_RADIUS = 6371.0
+
+port = int(os.environ.get("PORT", 5000))
 
 def haversine(lat1, lon1, lat2, lon2):
     """Calcule la distance de Haversine entre deux points géographiques."""
@@ -89,5 +93,17 @@ def top_customers(driver_id, n):
     except IndexError:
         return jsonify({"message": "Chauffeur introuvable."}), 404
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+@app.route('/cost', methods=['POST'])
+def cost():
+    data = request.get_json()
+    data = get_data(data.get('start'), data.get('end'),data.get('hour'))
+    cost = calculate_cost(data)
+    # return jsonify({'cost':cost})
+    return f"{cost}"
+    
+def calculate_cost(data):
+    return model.predict(data)
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=port, debug=False)
