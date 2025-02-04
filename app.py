@@ -739,76 +739,80 @@ def cost():
       - Tarification
     parameters:
       - name: body
-        in: body
-        required: true
-        schema:
-          type: object
-          required:
-            - start
-            - end
-            - hour
-          properties:
-            start:
-              type: string
-              description: Point de départ (nom du lieu ou adresse)
-              example: "Yaoundé, Carrefour Warda"
-            end:
-              type: string
-              description: Point d'arrivée (nom du lieu ou adresse)
-              example: "Yaoundé, Poste Centrale"
-            hour:
-              type: integer
-              description: Heure de départ (0-23)
-              example: 14
+      in: body
+      required: true
+      schema:
+        type: object
+        required:
+        - start
+        - end
+        - hour
+        properties:
+        start:
+          type: string
+          description: Point de départ (nom du lieu ou adresse)
+          example: "Yaoundé, Carrefour Warda"
+        end:
+          type: string
+          description: Point d'arrivée (nom du lieu ou adresse)
+          example: "Yaoundé, Poste Centrale"
+        hour:
+          type: integer
+          description: Heure de départ (0-23)
+          example: 14
     responses:
       200:
-        description: Détails de la tarification
-        schema:
-          type: object
-          properties:
-            cost:
-              type: number
-              description: Coût estimé de la course
-              example: 2500
-            distance:
-              type: number
-              description: Distance entre les deux points en kilomètres
-              example: 5.2
-            start:
-              type: string
-              description: Point de départ
-              example: "Yaoundé, Carrefour Warda"
-            end:
-              type: string
-              description: Point d'arrivée
-              example: "Yaoundé, Poste Centrale"
-            mint_cost:
-              type: number
-              description: Coût minimum selon l'heure
-              example: 350
+      description: Détails de la tarification
+      schema:
+        type: object
+        properties:
+        cost:
+          type: number
+          description: Coût estimé de la course
+          example: 2500
+        distance:
+          type: number
+          description: Distance entre les deux points en kilomètres
+          example: 5.2
+        start:
+          type: string
+          description: Point de départ
+          example: "Yaoundé, Carrefour Warda"
+        end:
+          type: string
+          description: Point d'arrivée
+          example: "Yaoundé, Poste Centrale"
+        mint_cost:
+          type: number
+          description: Coût minimum selon l'heure
+          example: 350
       400:
-        description: Données invalides ou manquantes
+      description: Données invalides ou manquantes
     """
     data = request.get_json()
+
     start = data.get('start')
     end = data.get('end')
     hour = data.get('hour')
-
-    if not start or not end:
-        return jsonify({"error": "Données invalides ou manquantes"}), 400
+    
+    data = get_data(start, end, hour)
 
     start_lon, start_lat = get_coordinates(start)
     end_lon, end_lat = get_coordinates(end)
     distance = calculate_distance(start_lon, start_lat, end_lon, end_lat)
     cost = calculate_cost(data)
-    mint_cost = 350 if 6 <= int(hour[:2]) <= 22 else 400
+
+    # Convertir le coût en un type sérialisable JSON
+    cost = cost.item() if hasattr(cost, 'item') else cost
+
+    mint_cost = 350
 
     return jsonify({
-        "cost": cost,
-        "distance": distance,
-        "start": start,
-        "end": end,
-        "mint_cost": mint_cost
+      "cost": cost,
+      "distance": distance,
+      "start": start,
+      "end": end,
+      "mint_cost": mint_cost
     })
 
     
