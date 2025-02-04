@@ -4,6 +4,7 @@ from flasgger import Swagger
 from utils import *
 import os
 import hashlib
+import time
 
 port = int(os.environ.get("PORT", 5000))
 
@@ -732,52 +733,68 @@ def cost():
             - hour
           properties:
             start:
-              type: object
-              description: Point de départ
-              required:
-                - latitude
-                - longitude
-              properties:
-                latitude:
-                  type: number
-                  format: float
-                  example: 3.8667
-                longitude:
-                  type: number
-                  format: float
-                  example: 11.5167
+              type: string
+              description: Point de départ (nom du lieu ou adresse)
+              example: "Yaoundé, Carrefour Warda"
             end:
-              type: object
-              description: Point d'arrivée
-              required:
-                - latitude
-                - longitude
-              properties:
-                latitude:
-                  type: number
-                  format: float
-                  example: 3.8689
-                longitude:
-                  type: number
-                  format: float
-                  example: 11.5214
+              type: string
+              description: Point d'arrivée (nom du lieu ou adresse)
+              example: "Yaoundé, Poste Centrale"
             hour:
               type: integer
               description: Heure de départ (0-23)
               example: 14
     responses:
       200:
-        description: Coût estimé de la course
+        description: Détails de la tarification
         schema:
-          type: string
-          example: "2500"
+          type: object
+          properties:
+            cost:
+              type: number
+              description: Coût estimé de la course
+              example: 2500
+            distance:
+              type: number
+              description: Distance entre les deux points en kilomètres
+              example: 5.2
+            start:
+              type: string
+              description: Point de départ
+              example: "Yaoundé, Carrefour Warda"
+            end:
+              type: string
+              description: Point d'arrivée
+              example: "Yaoundé, Poste Centrale"
+            mint_cost:
+              type: number
+              description: Coût minimum selon l'heure
+              example: 350
       400:
         description: Données invalides ou manquantes
     """
     data = request.get_json()
-    data = get_data(data.get('start'), data.get('end'), data.get('hour'))
+    start = data.get('start')
+    end = data.get('end')
+    hour = data.get('hour')
+
+    if not start or not end:
+        return jsonify({"error": "Données invalides ou manquantes"}), 400
+
+    start_lon, start_lat = get_coordinates(start)
+    end_lon, end_lat = get_coordinates(end)
+    distance = calculate_distance(start_lon, start_lat, end_lon, end_lat)
     cost = calculate_cost(data)
-    return f"{cost}"
+    mint_cost = 350 if 6 <= int(hour[:2] <= 22 else 400
+
+    return jsonify({
+        "cost": cost,
+        "distance": distance,
+        "start": start,
+        "end": end,
+        "mint_cost": mint_cost
+    })
+
     
 def calculate_cost(data):
     return model.predict(data)
