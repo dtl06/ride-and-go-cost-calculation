@@ -14,14 +14,13 @@ import pandas as pd
 DRIVER_DATA_FILE = 'drivers.pkl'
 PASSENGER_DATA_FILE = 'passengers.pkl'
 
+# Fonction pour charger les données depuis un fichier binaire
 def load_data(file_path):
     try:
         with open(file_path, 'rb') as f:
             return pickle.load(f)
     except FileNotFoundError:
-        with open(file_path, 'wb') as f:
-            pickle.dump([], f)  # Créer un fichier vide si le fichier n'existe pas
-        return []  # Retourner un dictionnaire vide
+        return []  # Retourner un dictionnaire vide si le fichier n'existe pas
 
 # Fonction pour sauvegarder les données dans un fichier binaire
 def save_data(file_path, data):
@@ -84,7 +83,6 @@ def get_top_n_customers(driver_id, n):
 
     passenger_scores.sort(key=lambda x: x[1], reverse=True)
     return passenger_scores[:n]
-
 
 model = joblib.load('random_forests.pkl')
 

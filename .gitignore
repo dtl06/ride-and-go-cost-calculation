@@ -1,4 +1,2 @@
-/venv
-/mon_env
-venv 
-mon_env
+venv/
+mon_env/
