@@ -4,6 +4,87 @@ import joblib
 from geopy.distance import geodesic
 import requests
 from datetime import datetime
+import pickle
+import math
+import random
+import pandas as pd
+
+
+# Chemin vers les fichiers binaires
+DRIVER_DATA_FILE = 'drivers.pkl'
+PASSENGER_DATA_FILE = 'passengers.pkl'
+
+def load_data(file_path):
+    try:
+        with open(file_path, 'rb') as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        with open(file_path, 'wb') as f:
+            pickle.dump([], f)  # Créer un fichier vide si le fichier n'existe pas
+        return []  # Retourner un dictionnaire vide
+
+# Fonction pour sauvegarder les données dans un fichier binaire
+def save_data(file_path, data):
+    with open(file_path, 'wb') as f:
+        pickle.dump(data, f)
+        
+drivers = load_data(DRIVER_DATA_FILE)
+passengers = load_data(PASSENGER_DATA_FILE)
+
+# Constantes des poids
+w1, w2, w3 = 0.3, 0.2, 0.5
+
+# Rayon de la Terre en kilomètres
+EARTH_RADIUS = 6371.0
+
+def haversine(lat1, lon1, lat2, lon2):
+    """Calcule la distance de Haversine entre deux points géographiques."""
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+    c = 2 * math.asin(math.sqrt(a))
+    return EARTH_RADIUS * c
+
+def compute_relevance_score(passenger, driver):
+    """Calcule le score de pertinence Sij."""
+    # Distance entre passager et chauffeur
+    distance = haversine(
+        passenger['travel']['start_lat'], passenger['travel']['start_lon'],
+        driver['localisation']['longitude'], driver['localisation']['latitude']
+    )
+    # Concordance des itinéraires (simulation ici)
+    concordance = 1 if random.choice([True, False]) else 0
+    # Score final
+    score = w1 * (1 / (1 + distance)) + w2 * driver['rating'] + w3 * concordance
+    return score
+
+# def assign_driver_to_passenger(passenger):
+#     """Assigne le chauffeur avec le score le plus élevé à un passager."""
+#     best_driver = None
+#     best_score = -1
+#     for _, driver in driver_df.iterrows():
+#         score = compute_relevance_score(passenger, driver)
+#         if score > best_score:
+#             best_driver = driver
+#             best_score = score
+#     return best_driver, best_score
+
+def get_top_n_customers(driver_id, n):
+    """Récupère les n premiers clients pour un chauffeur donné en fonction du score."""
+    print(drivers)
+    driver = next((d for d in drivers if d['personal_info']['username'] == driver_id), None)
+    if driver is None:
+        raise ValueError(f"No driver found with username {driver_id}")
+    passenger_scores = []
+    
+    for passenger in passengers:
+        score = compute_relevance_score(passenger, driver)
+        passenger_scores.append((passenger['passenger_id'], score))
+
+    passenger_scores.sort(key=lambda x: x[1], reverse=True)
+    return passenger_scores[:n]
+
 
 model = joblib.load('random_forests.pkl')
 
