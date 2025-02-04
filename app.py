@@ -14,6 +14,11 @@ PASSENGERS_FILE = 'passengers.pkl'
 app = Flask(__name__)
 Swagger(app)
 
+@app.route('/docs')
+def swagger_ui():
+    return redirect('/apidocs/') 
+
+
 @app.route("/", methods=["GET"])
 def welcome():
     """ACCUEIL"""
