@@ -5,6 +5,8 @@ from utils import *
 import os
 import hashlib
 import time
+from flask_cors import CORS, cross_origin
+
 
 port = int(os.environ.get("PORT", 5000))
 
@@ -14,13 +16,16 @@ PASSENGERS_FILE = 'passengers.pkl'
 # Initialiser Flask
 app = Flask(__name__)
 Swagger(app)
+CORS(app)
 
 @app.route('/docs')
+@cross_origin()
 def swagger_ui():
     return redirect('/apidocs/') 
 
 
 @app.route("/", methods=["GET"])
+@cross_origin()
 def welcome():
     """ACCUEIL"""
     return jsonify({"message": "Bienvenue sur l'api de recommandation des clients et chauffeurs pour l'application Ride and go."}), 200
@@ -29,6 +34,7 @@ def welcome():
 active_sessions = {}
 
 @app.route('/register', methods=['POST'])
+@cross_origin()
 def register():
     """
     Inscription d'un nouvel utilisateur.
@@ -136,6 +142,7 @@ def register():
 
 
 @app.route('/login', methods=['POST'])
+@cross_origin()
 def login():
     """
     Connexion d'un utilisateur avec email, username ou téléphone.
@@ -193,6 +200,7 @@ def login():
 
 
 @app.route('/set_localisation', methods=['POST'])
+@cross_origin()
 def set_localisation():
     """
     Mise à jour de la localisation d'un utilisateur.
@@ -260,6 +268,7 @@ def set_localisation():
     return jsonify({"message": "Localisation mise à jour avec succès"}), 200
 
 @app.route('/get_localisation', methods=['GET'])
+@cross_origin()
 def get_localisation():
     """
     Récupérer les informations de localisation de l'utilisateur.
@@ -316,6 +325,7 @@ def get_localisation():
     return jsonify(localisation), 200
 
 @app.route('/set_routes', methods=['POST'])
+@cross_origin()
 def set_routes():
     """
     Permet à un conducteur de définir plusieurs de ses itinéraires.
@@ -385,6 +395,7 @@ def set_routes():
 
 
 @app.route('/get_users', methods=['GET'])
+@cross_origin()
 def get_users():
     """
     Récupérer la liste des utilisateurs.
@@ -442,6 +453,7 @@ def get_users():
 
 
 @app.route('/get_routes', methods=['GET'])
+@cross_origin()
 def get_routes():
     """
     Permet à un conducteur de récupérer ses itinéraires.
@@ -500,6 +512,7 @@ def get_routes():
 
 
 @app.route('/set_travel', methods=['POST'])
+@cross_origin()
 def set_travel():
     """
     Permet à un passager de définir ou de mettre à jour son itinéraire de voyage.
@@ -577,6 +590,7 @@ def set_travel():
     return jsonify({"message": "Itinéraire de voyage mis à jour avec succès"}), 200
 
 @app.route('/get_travel', methods=['GET'])
+@cross_origin()
 def get_travel():
     """
     Permet à un passager de récupérer son itinéraire de voyage.
@@ -671,6 +685,7 @@ def get_travel():
 #     return f"{cost}"
 
 @app.route("/top_customers/<driver_username>/<int:n>", methods=["GET"])
+@cross_origin()
 def top_customers(driver_username, n):
     """
     Récupère les N clients les plus fréquents d'un chauffeur spécifique.
@@ -715,6 +730,7 @@ def top_customers(driver_username, n):
         return jsonify({"message": "Chauffeur introuvable."}), 404
 
 @app.route('/cost', methods=['POST'])
+@cross_origin()
 def cost():
     """
     Calcule le coût estimé d'une course en fonction des paramètres fournis.
@@ -785,7 +801,7 @@ def cost():
     end_lon, end_lat = get_coordinates(end)
     distance = calculate_distance(start_lon, start_lat, end_lon, end_lat)
     cost = calculate_cost(data)
-    mint_cost = 350 if 6 <= int(hour[:2] <= 22 else 400
+    mint_cost = 350 if 6 <= int(hour[:2]) <= 22 else 400
 
     return jsonify({
         "cost": cost,
