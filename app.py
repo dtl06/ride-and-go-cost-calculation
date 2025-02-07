@@ -16,7 +16,7 @@ PASSENGERS_FILE = 'passengers.pkl'
 # Initialiser Flask
 app = Flask(__name__)
 Swagger(app)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "https://rideandgo.vercel.app"]}})
 
 @app.route('/docs')
 @cross_origin()

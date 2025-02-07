@@ -46,6 +46,8 @@ pip install -r requirements.txt
 flask run
 ```
 
+✅ **Your project is ready now !** 🚀
+
+to access documentation of api, go to route /api/doc
 ---
 
-✅ **Ton projet fonctionne maintenant !** 🚀
